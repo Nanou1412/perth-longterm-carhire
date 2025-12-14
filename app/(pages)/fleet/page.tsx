@@ -22,11 +22,20 @@ export default function FleetPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             {FLEET.map((vehicle) => (
-              <Card key={vehicle.id} className="hover:shadow-2xl hover:-translate-y-4 transition duration-300 bg-white overflow-hidden">
+              <Card key={vehicle.id} className="relative hover:shadow-2xl hover:-translate-y-4 transition duration-300 bg-white overflow-hidden">
                 <div className="flex flex-col">
                   {/* Vehicle Image Area */}
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 text-center">
-                    <div className="text-8xl mb-4">{vehicle.image}</div>
+                    <div className="flex justify-between items-start">
+                      <div className="text-8xl mb-4">{vehicle.image}</div>
+                      <div className="ml-4">
+                        {vehicle.available ? (
+                          <span className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 text-sm font-semibold px-3 py-1 rounded-full">● Available</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 bg-gray-200 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full">● Unavailable</span>
+                        )}
+                      </div>
+                    </div>
                     <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
                       {vehicle.category}
                     </p>
@@ -62,8 +71,8 @@ export default function FleetPage() {
                       <h4 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wide">Features</h4>
                       <div className="flex flex-wrap gap-2">
                         {vehicle.features.map((feature, idx) => (
-                          <span key={idx} className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-
+                          <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                            {feature}
                           </span>
                         ))}
                       </div>
@@ -98,7 +107,11 @@ export default function FleetPage() {
                       </div>
                     </div>
 
-                    <CTAButton href="/contact" text="Request Quote" />
+                    {vehicle.available ? (
+                      <CTAButton href={`/contact?vehicle=${encodeURIComponent(vehicle.name)}`} text="Request Quote" />
+                    ) : (
+                      <span className="inline-block px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold">Unavailable — Enquire</span>
+                    )}
                   </div>
                 </div>
               </Card>

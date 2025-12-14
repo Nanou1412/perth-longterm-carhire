@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicle {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  weeklyPrice Int
+  createdAt DateTime @default(now())
+  bookings  Booking[]
+}
+
+model Booking {
+  id                 String   @id @default(cuid())
+  vehicleId          String
+  vehicle            Vehicle  @relation(fields: [vehicleId], references: [id])
+  clientName         String
+  clientEmail        String
+  clientPhone        String
+  startDate          DateTime
+  endDate            DateTime
+  weeks              Int
+  weeklyPrice        Int
+  totalPrice         Int
+  status             String   @default("active")
+  stripeSubscriptionId String? 
+  token              String   @unique
+  createdAt          DateTime @default(now())
+  payments           Payment[]
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  stripePaymentId String?
+  amount        Int
+  status        String
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}

@@ -35,6 +35,53 @@ npm install @aws-sdk/client-s3
 
 Note: local `uploads/` is ephemeral on serverless platforms — for production use S3 or another durable storage.
 
+## Long-term booking & recurring payments (Stripe)
+
+This project includes a bookings system with weekly recurring payments implemented via Stripe. Files added:
+
+- `prisma/schema.prisma` — database models (Vehicle, Booking, Payment, Setting)
+- `lib/prisma.ts` — Prisma client wrapper
+- `lib/stripe.ts` — Stripe helper
+- `app/api/bookings/route.ts` — create bookings and create Stripe subscription
+- `app/api/bookings/[token]/route.ts` — fetch booking by token (client)
+- `app/api/webhooks/stripe/route.ts` — Stripe webhook to record payments and update bookings
+- `app/api/admin/reservations/route.ts` — admin listing of bookings (protected by `ADMIN_SECRET`)
+- `app/api/admin/settings/route.ts` — admin settings (editable texts)
+- `app/(pages)/bookings/new/page.tsx` — client booking page with Stripe Elements
+- `app/(pages)/account/reservations/page.tsx` — client view of reservation + payments
+- `app/(pages)/admin/reservations/page.tsx` — admin dashboard list
+- `app/(pages)/insurance/page.tsx` — insurance info editable from admin settings
+
+Environment variables to add (local .env):
+
+```
+DATABASE_URL="file:./dev.db"
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...   # optional for local verification
+ADMIN_SECRET=some_admin_secret   # used by admin API routes
+```
+
+Install additional packages:
+
+```bash
+npm install prisma @prisma/client stripe @stripe/stripe-js @stripe/react-stripe-js
+npx prisma generate
+npx prisma migrate dev --name init
+```
+
+How to test payments locally:
+
+1. Configure Stripe test keys in `.env`.
+2. Run the dev server: `npm run dev`.
+3. Open `/bookings/new` to create a booking and collect test card details using Stripe's test cards (e.g. `4242 4242 4242 4242`).
+4. Configure webhook forwarding in Stripe CLI to `http://localhost:3000/api/webhooks/stripe` and set `STRIPE_WEBHOOK_SECRET` accordingly.
+
+Notes & recommendations:
+- For production, use a managed database (Postgres) and durable file storage (S3).
+- Ensure HTTPS and secure handling of PII. Implement background retry & admin notifications for failed payments.
+
+
 ## 📋 Tech Stack
 - **Form Handling**: React Hooks
 
