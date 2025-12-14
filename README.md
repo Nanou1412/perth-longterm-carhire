@@ -4,10 +4,6 @@ A modern, responsive website for Perth Long-Term Car Hire built with Next.js 14,
 
 ## 🚀 Features
 
-- **Fully Responsive Design** - Works perfectly on mobile, tablet, and desktop
-- **Production Ready** - Optimized for performance and SEO
-- **Modern UI Components** - Reusable, clean, and maintainable components
-- **Comprehensive Pages**:
   - Home (Hero, value proposition, fleet overview)
   - Fleet (Detailed vehicle listings)
   - Pricing (Transparent pricing breakdown)
@@ -15,11 +11,31 @@ A modern, responsive website for Perth Long-Term Car Hire built with Next.js 14,
   - FAQ (Interactive accordion)
   - Contact (Form + contact details)
 
-## 📋 Tech Stack
+## Enquiries API (file uploads)
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
+This project includes a server API at `POST /api/enquiries` that accepts a `FormData` payload with the following fields:
+
+- `name`, `email`, `phone`, `subject`, `message`, `vehicleInterest`, `rentalDuration`
+- Optional files: `idFile`, `licenseFile` (PNG, JPG or PDF, max 5MB each)
+
+By default uploaded files and a JSON metadata file are stored in a local `uploads/` folder (useful for development). To enable upload to AWS S3, set the following environment variables in your deployment environment:
+
+```
+AWS_S3_BUCKET=your-bucket-name
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=ap-southeast-2
+```
+
+If you enable S3 support you must install the AWS SDK client in your project:
+
+```bash
+npm install @aws-sdk/client-s3
+```
+
+Note: local `uploads/` is ephemeral on serverless platforms — for production use S3 or another durable storage.
+
+## 📋 Tech Stack
 - **Form Handling**: React Hooks
 
 ## 🏢 Business Details
