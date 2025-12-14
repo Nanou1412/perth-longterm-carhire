@@ -1,0 +1,212 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║  PERTH LONG-TERM CAR HIRE - QUICK REFERENCE CARD                          ║
+║  Save this file for quick access to key commands and locations            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+🚀 START HERE
+═════════════════════════════════════════════════════════════════════════════
+  1. cd /Users/norchenekrb/Desktop/perth-longterm-carhire
+  2. npm run dev
+  3. Open: http://localhost:3000
+  
+📖 READ THESE (In Order)
+═════════════════════════════════════════════════════════════════════════════
+  1. START_HERE.md         ← Quick overview (THIS!)
+  2. INDEX.md              ← Navigation guide
+  3. SETUP_COMPLETE.md     ← How to run it
+  4. HOW_TO_EDIT.md        ← How to change things
+  5. DEPLOYMENT.md         ← How to deploy
+  6. PROJECT_SUMMARY.md    ← Full details
+
+🔧 COMMON TASKS
+═════════════════════════════════════════════════════════════════════════════
+
+CHANGE PHONE NUMBER
+  → Edit: app/lib/constants.ts
+  → Find: phone: '0400 000 000'
+  → Change to your number
+
+CHANGE EMAIL
+  → Edit: app/lib/constants.ts
+  → Find: email: 'testrent@gmail.com'
+  → Change to your email
+
+UPDATE VEHICLE PRICE
+  → Edit: app/lib/constants.ts
+  → Find: FLEET array
+  → Change: weeklyPrice: 229
+
+ADD FAQ QUESTION
+  → Edit: app/lib/constants.ts
+  → Find: FAQ array
+  → Add new object with question/answer
+
+CHANGE COLORS
+  → Search and replace in all .tsx files
+  → Replace: blue-600 → your-color-600
+  → (e.g., emerald-600, purple-600, etc.)
+
+⚙️ COMMANDS
+═════════════════════════════════════════════════════════════════════════════
+
+Start Dev Server         →  npm run dev
+Build for Production     →  npm run build
+Start Production Server  →  npm start
+Check for Errors         →  npm run build
+Clear Cache              →  rm -rf .next
+Reinstall Packages       →  npm install
+
+📂 KEY FILES
+═════════════════════════════════════════════════════════════════════════════
+
+⭐ app/lib/constants.ts  - Edit ALL business data here
+  
+Pages:
+  app/page.tsx                    - Home page
+  app/(pages)/fleet/page.tsx      - Fleet
+  app/(pages)/pricing/page.tsx    - Pricing
+  app/(pages)/how-it-works/page.tsx - How It Works
+  app/(pages)/faq/page.tsx        - FAQ
+  app/(pages)/contact/page.tsx    - Contact
+
+Components:
+  app/components/Navigation.tsx   - Header
+  app/components/Footer.tsx       - Footer
+  app/components/Card.tsx         - Card layout
+  app/components/CTAButton.tsx    - Button
+
+🎯 PAGES & URLS
+═════════════════════════════════════════════════════════════════════════════
+
+http://localhost:3000/          → Home
+http://localhost:3000/fleet     → Fleet
+http://localhost:3000/pricing   → Pricing
+http://localhost:3000/how-it-works → How It Works
+http://localhost:3000/faq       → FAQ
+http://localhost:3000/contact   → Contact
+
+💼 BUSINESS INFO
+═════════════════════════════════════════════════════════════════════════════
+
+Company:        Perth Long-Term Car Hire
+Location:       Mirrabooka, WA
+Phone:          0400 000 000
+Email:          testrent@gmail.com
+Min Rental:     6 weeks
+Service Area:   Perth & Surrounds
+
+🚗 VEHICLES
+═════════════════════════════════════════════════════════════════════════════
+
+1. Toyota Vitz           - $229/week (Economy)
+2. Toyota Corolla        - $279/week (Standard)
+3. Toyota RAV4 Hybrid    - $379/week (Premium)
+4. Toyota HiAce          - $459/week (Van)
+
+💰 PRICING
+═════════════════════════════════════════════════════════════════════════════
+
+Security Bond:      $500 (refundable)
+Free KM/Week:       3,000 km
+Excess KM Rate:     $0.15/km
+Insurance (3rd):    $10/week
+Insurance (Comp):   $25/week
+
+✅ QUICK CHECKLIST
+═════════════════════════════════════════════════════════════════════════════
+
+BEFORE DEPLOYING:
+  □ Test all pages in dev mode
+  □ Test on mobile (Ctrl+Shift+M)
+  □ Test contact form
+  □ Check contact details are correct
+  □ Verify phone numbers work
+  □ Run: npm run build (should succeed)
+
+AFTER MAKING CHANGES:
+  □ Hard refresh browser (Ctrl+Shift+R)
+  □ Test the changed page
+  □ Test on mobile
+  □ Check for console errors (F12)
+
+🐛 TROUBLESHOOTING
+═════════════════════════════════════════════════════════════════════════════
+
+Server won't start?
+  → rm -rf .next
+  → npm install
+  → npm run dev
+
+Changes not showing?
+  → Hard refresh: Ctrl+Shift+R (or Cmd+Shift+R)
+  → Check saved file
+  → Try restarting server
+
+Build fails?
+  → npm run build (check output for errors)
+  → Look for red error messages
+  → Check file syntax
+
+Phone links don't work?
+  → Format must be: 0400 000 000
+  → Will show as: <a href="tel:0400000000">
+
+🚀 DEPLOY OPTIONS
+═════════════════════════════════════════════════════════════════════════════
+
+Vercel (Easiest)    → vercel
+Netlify             → netlify deploy --prod
+AWS Amplify         → amplify publish
+Self-Hosted (Linux) → npm run build && npm start
+
+See DEPLOYMENT.md for detailed instructions
+
+📱 MOBILE TESTING
+═════════════════════════════════════════════════════════════════════════════
+
+1. Start dev server: npm run dev
+2. Open DevTools: F12 or Ctrl+Shift+I
+3. Toggle Device: Ctrl+Shift+M
+4. Test all pages
+5. Test forms
+6. Test buttons
+7. Test navigation
+
+💡 TIPS
+═════════════════════════════════════════════════════════════════════════════
+
+✓ Most changes are in app/lib/constants.ts
+✓ Test locally before deploying
+✓ Backup important files
+✓ Read documentation for detailed help
+✓ Use search (Ctrl+F) to find text in files
+✓ Clear browser cache if changes don't show
+
+📞 SUPPORT
+═════════════════════════════════════════════════════════════════════════════
+
+Business Questions:
+  Phone: 0400 000 000
+  Email: testrent@gmail.com
+
+Technical Help:
+  1. Check INDEX.md
+  2. Check HOW_TO_EDIT.md
+  3. Check DEPLOYMENT.md
+  4. Check browser console (F12)
+
+✨ YOU'RE ALL SET!
+═════════════════════════════════════════════════════════════════════════════
+
+Your website is production-ready. Just:
+
+  1. Start server: npm run dev
+  2. View: http://localhost:3000
+  3. Edit: app/lib/constants.ts
+  4. Deploy: Follow DEPLOYMENT.md
+
+No additional setup needed!
+
+═════════════════════════════════════════════════════════════════════════════
+Last Updated: December 14, 2025 | Status: ✅ Production Ready
+═════════════════════════════════════════════════════════════════════════════

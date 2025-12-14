@@ -1,36 +1,245 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Perth Long-Term Car Hire - Website
 
-## Getting Started
+A modern, responsive website for Perth Long-Term Car Hire built with Next.js 14, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Fully Responsive Design** - Works perfectly on mobile, tablet, and desktop
+- **Production Ready** - Optimized for performance and SEO
+- **Modern UI Components** - Reusable, clean, and maintainable components
+- **Comprehensive Pages**:
+  - Home (Hero, value proposition, fleet overview)
+  - Fleet (Detailed vehicle listings)
+  - Pricing (Transparent pricing breakdown)
+  - How It Works (Simple 6-step process)
+  - FAQ (Interactive accordion)
+  - Contact (Form + contact details)
+
+## 📋 Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Form Handling**: React Hooks
+
+## 🏢 Business Details
+
+- **Business Name**: Perth Long-Term Car Hire
+- **Location**: Mirrabooka, WA
+- **Service Area**: Perth & Surrounds
+- **Phone**: 0400 000 000
+- **Email**: testrent@gmail.com
+- **Minimum Rental**: 6 weeks
+
+## 🚗 Fleet
+
+1. **Toyota Vitz** - $229/week
+   - Compact, fuel-efficient city car
+   - Perfect for individuals or couples
+
+2. **Toyota Corolla** - $279/week
+   - Reliable sedan for comfortable driving
+   - Ideal for families
+
+3. **Toyota RAV4 Hybrid** - $379/week
+   - Eco-friendly SUV
+   - Excellent fuel efficiency
+
+4. **Toyota HiAce** - $459/week
+   - Spacious van for larger groups
+   - Great for deliveries
+
+## 💰 Pricing
+
+- **Security Bond**: $500 (refundable)
+- **Included Kilometers**: 3,000 km per week
+- **Excess Kilometers**: $0.15/km
+- **Insurance Options**:
+  - Third Party: $10/week
+  - Comprehensive: $25/week
+
+## 📁 Project Structure
+
+```
+app/
+├── components/           # Reusable UI components
+│   ├── Navigation.tsx
+│   ├── Footer.tsx
+│   ├── Card.tsx
+│   └── CTAButton.tsx
+├── lib/
+│   └── constants.ts      # Business data & constants
+├── (pages)/              # App routes
+│   ├── fleet/
+│   ├── pricing/
+│   ├── how-it-works/
+│   ├── faq/
+│   └── contact/
+├── page.tsx             # Home page
+├── layout.tsx           # Root layout
+└── globals.css          # Global styles
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Navigate to the project**
+```bash
+cd /Users/norchenekrb/Desktop/perth-longterm-carhire
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Install dependencies** (already done)
+```bash
+npm install
+```
 
-## Learn More
+3. **Run development server**
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Open in browser**
+```
+http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📦 Build for Production
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+npm start
+```
 
-## Deploy on Vercel
+## 🎯 Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Home (/)
+- Hero section with value proposition
+- Key features highlight
+- Fleet showcase
+- Minimum rental period information
+- How it works preview
+- Contact CTA
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Fleet (/fleet)
+- Detailed vehicle listings
+- Vehicle specifications (seats, transmission, fuel type)
+- Features for each vehicle
+- Weekly pricing
+- Rental requirements and inclusions
+
+### Pricing (/pricing)
+- Weekly rates table
+- Pricing components (bond, kilometers, insurance)
+- Rental conditions
+- Sample price breakdown (6-week example)
+
+### How It Works (/how-it-works)
+- 6-step rental process
+- Required documents
+- Eligibility requirements
+- Delivery & return options
+- Important reminders
+
+### FAQ (/faq)
+- Interactive accordion with common questions
+- Topics overview
+- Multiple contact options
+
+### Contact (/contact)
+- Contact form with fields for:
+  - Full name, email, phone
+  - Vehicle interest
+  - Rental duration
+  - Subject & message
+- Contact information card
+- Multiple contact methods
+
+## 🎨 Design Features
+
+- **Color Scheme**: Blue primary (#2563eb), gray secondary
+- **Typography**: Clean, readable sans-serif fonts
+- **Spacing**: Consistent padding and margins
+- **Responsive Grid**: Mobile-first approach
+- **Interactive Elements**: Hover states, smooth transitions
+- **Accessibility**: Semantic HTML, proper form labels
+
+## 🔧 Customization
+
+### Update Business Details
+Edit `app/lib/constants.ts`:
+```typescript
+export const BUSINESS = {
+  name: 'Perth Long-Term Car Hire',
+  phone: '0400 000 000',
+  email: 'testrent@gmail.com',
+  // ... other details
+};
+```
+
+### Add New Vehicles
+Add to `FLEET` array in `app/lib/constants.ts`
+
+### Modify Pricing
+Update `PRICING_DETAILS` in `app/lib/constants.ts`
+
+### Add FAQ Items
+Add to `FAQ` array in `app/lib/constants.ts`
+
+## 📝 Form Submission
+
+The contact form is currently set up with client-side validation and success feedback. To connect to a backend:
+
+1. Update the `handleSubmit` function in `app/(pages)/contact/page.tsx`
+2. Add API endpoint call
+3. Implement server-side validation
+
+## 📱 Mobile Responsive
+
+- All pages are fully responsive
+- Navigation adapts for mobile devices
+- Touch-friendly button sizes
+- Optimized font sizes
+
+## 🔍 SEO
+
+- Semantic HTML structure
+- Meta tags for pages
+- Descriptive page titles and descriptions
+- Open Graph tags for social sharing
+
+## 🚀 Deployment
+
+This site is ready to deploy on:
+- **Vercel** (Recommended for Next.js)
+- **Netlify**
+- **AWS Amplify**
+- **Any Node.js hosting**
+
+### Deploy to Vercel
+```bash
+npm install -g vercel
+vercel
+```
+
+## 📄 License
+
+Created for Perth Long-Term Car Hire.
+
+## ✅ Production Checklist
+
+- ✅ All pages created and functional
+- ✅ Responsive design implemented
+- ✅ Contact form with validation
+- ✅ Navigation and footer
+- ✅ Fleet and pricing information
+- ✅ FAQ section
+- ✅ How it works guide
+- ✅ SEO optimization
+- ✅ Fast load times
+- ✅ Clean, maintainable code
+
+## 📧 Contact
+
+For questions or updates, contact:
+- Phone: 0400 000 000
+- Email: testrent@gmail.com
+- Location: Mirrabooka, WA
