@@ -5,7 +5,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { FLEET, BUSINESS } from '@/lib/constants';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+const STRIPE_PUBLISHABLE = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+const stripePromise = STRIPE_PUBLISHABLE ? loadStripe(STRIPE_PUBLISHABLE) : null;
 
 function CheckoutForm() {
   const stripe = useStripe();
@@ -21,17 +22,25 @@ function CheckoutForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    // If Stripe isn't configured, allow reservation without payment
+    if (STRIPE_PUBLISHABLE && (!stripe || !elements)) return;
     setLoading(true);
     setMessage(null);
-
-    const card = elements.getElement(CardElement);
-    if (!card) return;
-    const pm = await stripe.createPaymentMethod({ type: 'card', card, billing_details: { name, email, phone } });
-    if (pm.error) {
-      setMessage(pm.error.message || 'Card error');
-      setLoading(false);
-      return;
+    let paymentMethodId: string | undefined = undefined;
+    if (STRIPE_PUBLISHABLE) {
+      const card = elements.getElement(CardElement);
+      if (!card) {
+        setMessage('Card input not available');
+        setLoading(false);
+        return;
+      }
+      const pm = await stripe.createPaymentMethod({ type: 'card', card, billing_details: { name, email, phone } });
+      if (pm.error) {
+        setMessage(pm.error.message || 'Card error');
+        setLoading(false);
+        return;
+      }
+      paymentMethodId = (pm.paymentMethod as any).id;
     }
 
     const form = new FormData();
@@ -41,7 +50,7 @@ function CheckoutForm() {
     form.append('vehicle', vehicle);
     form.append('startDate', startDate);
     form.append('weeks', weeks);
-    form.append('paymentMethodId', (pm.paymentMethod as any).id);
+    if (paymentMethodId) form.append('paymentMethodId', paymentMethodId);
 
     const res = await fetch('/api/bookings', { method: 'POST', body: form });
     const json = await res.json();
@@ -84,13 +93,17 @@ function CheckoutForm() {
         <input type="number" min={BUSINESS.minimumRental} value={weeks} onChange={(e) => setWeeks(e.target.value)} className="mt-1 w-full" />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Card details</label>
-        <div className="mt-1 p-3 border rounded"><CardElement /></div>
-      </div>
+      {STRIPE_PUBLISHABLE ? (
+        <div>
+          <label className="block text-sm font-medium">Card details</label>
+          <div className="mt-1 p-3 border rounded"><CardElement /></div>
+        </div>
+      ) : (
+        <div className="p-4 bg-yellow-50 border rounded text-sm">Stripe not configured — reservation will be created without online payment. You can add payment later in admin.</div>
+      )}
 
       <div>
-        <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded">{loading ? 'Processing…' : 'Reserve & Pay Weekly'}</button>
+        <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded">{loading ? 'Processing…' : (STRIPE_PUBLISHABLE ? 'Reserve & Pay Weekly' : 'Reserve (no online payment)')}</button>
       </div>
       {message && <p className="mt-2 text-sm">{message}</p>}
     </form>
