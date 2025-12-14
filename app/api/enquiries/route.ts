@@ -56,6 +56,7 @@ export async function POST(req: Request) {
     if (process.env.AWS_S3_BUCKET && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
       try {
         // dynamic import to avoid adding mandatory dependency if not used
+        // @ts-ignore - optional dependency, only required when you enable S3 integration
         const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
         const s3 = new S3Client({ region: process.env.AWS_REGION || 'ap-southeast-2' });
         for (const f of saved) {
