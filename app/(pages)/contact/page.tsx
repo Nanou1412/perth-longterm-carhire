@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BUSINESS } from '@/lib/constants';
 import Card from '@/components/Card';
 
@@ -18,6 +18,21 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [idFile, setIdFile] = useState<File | null>(null);
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [idPreview, setIdPreview] = useState<string | null>(null);
+  const [licensePreview, setLicensePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Prefill vehicleInterest from URL query on client only
+    try {
+      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const vehicle = params.get('vehicle');
+      if (vehicle) setFormData((prev) => ({ ...prev, vehicleInterest: vehicle }));
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -37,17 +52,71 @@ export default function ContactPage() {
     return Object.keys(next).length === 0;
   };
 
+  const validateFiles = () => {
+    const next: Record<string, string> = {};
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowed = ['image/png', 'image/jpeg', 'application/pdf'];
+    if (idFile) {
+      if (!allowed.includes(idFile.type)) next.idFile = 'ID file must be PNG, JPG or PDF.';
+      if (idFile.size > maxSize) next.idFile = 'ID file must be smaller than 5MB.';
+    }
+    if (licenseFile) {
+      if (!allowed.includes(licenseFile.type)) next.licenseFile = 'Licence file must be PNG, JPG or PDF.';
+      if (licenseFile.size > maxSize) next.licenseFile = 'Licence file must be smaller than 5MB.';
+    }
+    setErrors((prev) => ({ ...prev, ...next }));
+    return Object.keys(next).length === 0;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = e.target;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (name === 'idFile') {
+      setIdFile(file);
+      setIdPreview(file.type === 'application/pdf' ? null : URL.createObjectURL(file));
+    } else if (name === 'licenseFile') {
+      setLicenseFile(file);
+      setLicensePreview(file.type === 'application/pdf' ? null : URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!validateFiles()) return;
     setLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    // Prepare form data for backend (if available)
+    try {
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('email', formData.email);
+      payload.append('phone', formData.phone);
+      payload.append('subject', formData.subject);
+      payload.append('message', formData.message);
+      payload.append('vehicleInterest', formData.vehicleInterest);
+      payload.append('rentalDuration', formData.rentalDuration);
+      if (idFile) payload.append('idFile', idFile);
+      if (licenseFile) payload.append('licenseFile', licenseFile);
+
+      // NOTE: No backend endpoint configured. Replace the URL below with your upload endpoint.
+      // Example: await fetch('/api/enquiries', { method: 'POST', body: payload });
+
+      // Simulate server roundtrip
+      await new Promise((res) => setTimeout(res, 900));
+
       setSubmitted(true);
-      setLoading(false);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '', vehicleInterest: '', rentalDuration: '' });
-    }, 900);
+      setIdFile(null);
+      setLicenseFile(null);
+      setIdPreview(null);
+      setLicensePreview(null);
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, submit: 'An error occurred while sending your enquiry. Please try again.' }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -166,6 +235,25 @@ export default function ContactPage() {
                       <textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={6} aria-invalid={!!errors.message} aria-describedby={errors.message ? 'message-error' : undefined} className={`mt-1 block w-full px-4 py-3 rounded-lg border ${errors.message ? 'border-rose-500' : 'border-gray-300'} focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none`} placeholder="Tell us about your rental needs..." />
                       {errors.message && <p id="message-error" className="text-rose-600 text-sm mt-1">{errors.message}</p>}
                     </div>
+
+                    {/* File uploads for ID and Licence */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="idFile" className="block text-sm font-medium text-gray-700">Upload ID (photo or PDF)</label>
+                        <input id="idFile" name="idFile" type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="mt-1 block w-full" />
+                        {errors.idFile && <p className="text-rose-600 text-sm mt-1">{errors.idFile}</p>}
+                        {idPreview && <img src={idPreview} alt="ID preview" className="mt-2 w-40 h-auto rounded-md border" />}
+                      </div>
+
+                      <div>
+                        <label htmlFor="licenseFile" className="block text-sm font-medium text-gray-700">Upload Driver's Licence (photo or PDF)</label>
+                        <input id="licenseFile" name="licenseFile" type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="mt-1 block w-full" />
+                        {errors.licenseFile && <p className="text-rose-600 text-sm mt-1">{errors.licenseFile}</p>}
+                        {licensePreview && <img src={licensePreview} alt="Licence preview" className="mt-2 w-40 h-auto rounded-md border" />}
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500">We securely accept photo or PDF uploads. Files are only transmitted to a server if you have configured a backend endpoint. See README for integration details.</p>
 
                     <button type="submit" disabled={loading} className="w-full inline-flex justify-center items-center gap-2 bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
                       {loading ? 'Sending…' : 'Send Message'}
