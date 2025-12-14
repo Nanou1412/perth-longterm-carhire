@@ -44,6 +44,14 @@ export async function POST(req: Request) {
             await prisma.payment.create({ data: { bookingId: booking.id, stripePaymentId: invoice.payment_intent || invoice.id, amount: invoice.amount_due || 0, status: 'failed' } });
             // increment failure count or set status
             await prisma.booking.update({ where: { id: booking.id }, data: { status: 'payment_failed' } });
+            // notify admin by email if configured
+            try {
+              const { sendEmail } = await import('@/lib/email');
+              const admin = process.env.ADMIN_EMAIL;
+              if (admin) await sendEmail({ to: admin, subject: `Payment failed for booking ${booking.id}`, text: `A payment failed for booking ${booking.id}. Please review.` });
+            } catch (e) {
+              console.warn('notify admin failed', e);
+            }
           }
         }
         break;

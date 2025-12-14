@@ -89,6 +89,7 @@ export default function ContactPage() {
 
     // Prepare form data for backend (if available)
     try {
+      // If S3 presign is available, upload files directly and pass URLs to API
       const payload = new FormData();
       payload.append('name', formData.name);
       payload.append('email', formData.email);
@@ -97,8 +98,36 @@ export default function ContactPage() {
       payload.append('message', formData.message);
       payload.append('vehicleInterest', formData.vehicleInterest);
       payload.append('rentalDuration', formData.rentalDuration);
-      if (idFile) payload.append('idFile', idFile);
-      if (licenseFile) payload.append('licenseFile', licenseFile);
+
+      // helper to upload via presign
+      async function uploadWithPresign(file: File, fieldName: string) {
+        try {
+          const pres = await fetch('/api/uploads/presign', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ filename: file.name, contentType: file.type }) });
+          const pjson = await pres.json();
+          if (pjson?.url) {
+            await fetch(pjson.url, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+            payload.append(fieldName + 'Url', pjson.key || pjson.url);
+            return true;
+          } else if (pjson?.key) {
+            // fallback: server will accept files directly; append file so server can save using fallback key
+            payload.append(fieldName, file);
+            payload.append(fieldName + 'Key', pjson.key);
+            return true;
+          }
+        } catch (e) {
+          // ignore and fallback to direct upload
+        }
+        return false;
+      }
+
+      if (idFile) {
+        const ok = await uploadWithPresign(idFile, 'idFile');
+        if (!ok) payload.append('idFile', idFile);
+      }
+      if (licenseFile) {
+        const ok = await uploadWithPresign(licenseFile, 'licenseFile');
+        if (!ok) payload.append('licenseFile', licenseFile);
+      }
 
       // Send to backend endpoint
       const res = await fetch('/api/enquiries', { method: 'POST', body: payload });

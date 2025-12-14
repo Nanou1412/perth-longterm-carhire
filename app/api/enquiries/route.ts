@@ -34,22 +34,32 @@ export async function POST(req: Request) {
 
     const idFile = form.get('idFile') as unknown as File | null;
     const licenseFile = form.get('licenseFile') as unknown as File | null;
+    const idFileUrl = form.get('idFileUrl')?.toString() || null;
+    const licenseFileUrl = form.get('licenseFileUrl')?.toString() || null;
 
     const uploadsDir = path.join(process.cwd(), 'uploads');
     await fs.promises.mkdir(uploadsDir, { recursive: true });
 
     const saved: any[] = [];
-    try {
-      const s1 = await saveFile(idFile, uploadsDir);
-      if (s1) saved.push({ field: 'idFile', ...s1 });
-    } catch (e: any) {
-      return NextResponse.json({ error: `ID file error: ${e.message}` }, { status: 400 });
+    // If client uploaded directly to S3, they provide URLs/keys instead of files
+    if (idFileUrl) saved.push({ field: 'idFile', s3Url: idFileUrl });
+    if (licenseFileUrl) saved.push({ field: 'licenseFile', s3Url: licenseFileUrl });
+    // Otherwise fall back to server-side save
+    if (!idFileUrl) {
+      try {
+        const s1 = await saveFile(idFile, uploadsDir);
+        if (s1) saved.push({ field: 'idFile', ...s1 });
+      } catch (e: any) {
+        return NextResponse.json({ error: `ID file error: ${e.message}` }, { status: 400 });
+      }
     }
-    try {
-      const s2 = await saveFile(licenseFile, uploadsDir);
-      if (s2) saved.push({ field: 'licenseFile', ...s2 });
-    } catch (e: any) {
-      return NextResponse.json({ error: `Licence file error: ${e.message}` }, { status: 400 });
+    if (!licenseFileUrl) {
+      try {
+        const s2 = await saveFile(licenseFile, uploadsDir);
+        if (s2) saved.push({ field: 'licenseFile', ...s2 });
+      } catch (e: any) {
+        return NextResponse.json({ error: `Licence file error: ${e.message}` }, { status: 400 });
+      }
     }
 
     // Optional S3 upload if environment variables present

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { stripe, weeklyPriceToCents } from '@/lib/stripe';
+import { sendEmail } from '@/lib/email';
 import { FLEET, BUSINESS } from '@/lib/constants';
 
 export const runtime = 'nodejs';
@@ -83,6 +84,13 @@ export async function POST(req: Request) {
       stripeSubscriptionId,
       token,
     }});
+
+    // send confirmation email if possible
+    try {
+      await sendEmail({ to: email, subject: `Booking confirmation — ${vehicle.name}`, text: `Thanks ${name}, your booking is confirmed for ${vehicle.name} from ${startDate.toDateString()} to ${endDate.toDateString()}. Total: $${totalPrice}. Booking token: ${token}` });
+    } catch (e) {
+      // swallow
+    }
 
     return NextResponse.json({ ok: true, bookingId: booking.id, token, stripeSubscriptionId, subscriptionStatus });
   } catch (err: any) {

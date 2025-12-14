@@ -40,6 +40,18 @@ export default function AdminReservationsPage() {
                 <td className="p-2">{new Date(b.startDate).toLocaleDateString()} → {new Date(b.endDate).toLocaleDateString()}</td>
                 <td className="p-2">{b.status}</td>
                 <td className="p-2">{b.payments?.length || 0}</td>
+                <td className="p-2">
+                  <div className="flex gap-2">
+                    <button onClick={async () => {
+                      const res = await fetch(`/api/admin/bookings/${b.id}/cancel`, { method: 'POST', headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || '' } });
+                      if (res.ok) window.location.reload();
+                    }} className="px-2 py-1 bg-rose-500 text-white rounded">Cancel Sub</button>
+                    <button onClick={async () => {
+                      const res = await fetch(`/api/admin/bookings/${b.id}/mark-paid`, { method: 'POST', headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || '' } });
+                      if (res.ok) window.location.reload();
+                    }} className="px-2 py-1 bg-emerald-600 text-white rounded">Mark Paid</button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
