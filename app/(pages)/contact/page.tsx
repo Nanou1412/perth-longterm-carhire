@@ -100,11 +100,14 @@ export default function ContactPage() {
       if (idFile) payload.append('idFile', idFile);
       if (licenseFile) payload.append('licenseFile', licenseFile);
 
-      // NOTE: No backend endpoint configured. Replace the URL below with your upload endpoint.
-      // Example: await fetch('/api/enquiries', { method: 'POST', body: payload });
-
-      // Simulate server roundtrip
-      await new Promise((res) => setTimeout(res, 900));
+      // Send to backend endpoint
+      const res = await fetch('/api/enquiries', { method: 'POST', body: payload });
+      const json = await res.json();
+      if (!res.ok) {
+        setErrors((prev) => ({ ...prev, submit: json?.error || 'Server error' }));
+        setLoading(false);
+        return;
+      }
 
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '', vehicleInterest: '', rentalDuration: '' });
