@@ -16,4 +16,17 @@ export async function sendEmail(opts: { to: string; subject: string; text?: stri
   }
 }
 
+export async function sendReceipt(to: string, bookingId: string, amountCents: number) {
+  const amount = (amountCents / 100).toFixed(2);
+  const subject = `Payment receipt — Booking ${bookingId}`;
+  const html = `<p>We received a payment of <strong>${amount} AUD</strong> for your booking <strong>${bookingId}</strong>. Thank you for choosing ${process.env.BUSINESS_NAME || 'PerthDrive'}.</p>`;
+  return sendEmail({ to, subject, html, text: `We received a payment of ${amount} AUD for your booking ${bookingId}.` });
+}
+
+export async function notifyAdmin(subject: string, text: string) {
+  const admin = process.env.ADMIN_EMAIL;
+  if (!admin) return false;
+  return sendEmail({ to: admin, subject, text });
+}
+
 export default sendEmail;

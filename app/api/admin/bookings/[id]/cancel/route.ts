@@ -4,13 +4,16 @@ import { stripe } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
 
-function checkAdmin(req: Request) {
-  const secret = req.headers.get('x-admin-secret') || '';
-  return secret && secret === process.env.ADMIN_SECRET;
+function checkAdminCookie(req: Request) {
+  const cookie = req.headers.get('cookie') || '';
+  const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('admin_session='));
+  if (!match) return false;
+  const val = match.split('=')[1] || '';
+  return val === (process.env.ADMIN_SECRET || '');
 }
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  if (!checkAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!checkAdminCookie(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const id = params.id;
   const booking = await prisma.booking.findUnique({ where: { id } });
   if (!booking) return NextResponse.json({ error: 'Not found' }, { status: 404 });

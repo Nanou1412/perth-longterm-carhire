@@ -7,7 +7,7 @@ export default function AdminReservationsPage() {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const load = async () => {
-      const res = await fetch('/api/admin/reservations', { headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET || '' } });
+      const res = await fetch('/api/admin/reservations');
       const json = await res.json();
       if (!res.ok) setError(json?.error || 'Unauthorized');
       else setBookings(json.bookings || []);

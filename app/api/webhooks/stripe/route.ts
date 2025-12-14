@@ -31,6 +31,15 @@ export async function POST(req: Request) {
           const booking = await prisma.booking.findFirst({ where: { stripeSubscriptionId: subId } });
           if (booking) {
             await prisma.payment.create({ data: { bookingId: booking.id, stripePaymentId: invoice.payment_intent || invoice.id, amount, status: 'paid', paidAt: new Date() } });
+            // reset failure count on success
+            await prisma.booking.update({ where: { id: booking.id }, data: { failureCount: 0, status: 'active' } });
+            // send receipt to client
+            try {
+              const { sendReceipt } = await import('@/lib/email');
+              if (booking.clientEmail) await sendReceipt(booking.clientEmail, booking.id, amount);
+            } catch (e) {
+              console.warn('send receipt failed', e);
+            }
           }
         }
         break;
@@ -42,15 +51,28 @@ export async function POST(req: Request) {
           const booking = await prisma.booking.findFirst({ where: { stripeSubscriptionId: subId } });
           if (booking) {
             await prisma.payment.create({ data: { bookingId: booking.id, stripePaymentId: invoice.payment_intent || invoice.id, amount: invoice.amount_due || 0, status: 'failed' } });
-            // increment failure count or set status
-            await prisma.booking.update({ where: { id: booking.id }, data: { status: 'payment_failed' } });
-            // notify admin by email if configured
-            try {
-              const { sendEmail } = await import('@/lib/email');
-              const admin = process.env.ADMIN_EMAIL;
-              if (admin) await sendEmail({ to: admin, subject: `Payment failed for booking ${booking.id}`, text: `A payment failed for booking ${booking.id}. Please review.` });
-            } catch (e) {
-              console.warn('notify admin failed', e);
+            // increment failure count and set status
+            const updated = await prisma.booking.update({ where: { id: booking.id }, data: { failureCount: { increment: 1 } }, include: { payments: true } });
+            const failures = updated.failureCount;
+            const threshold = parseInt(process.env.PAYMENT_FAILURE_THRESHOLD || '3', 10);
+            if (failures >= threshold) {
+              await prisma.booking.update({ where: { id: booking.id }, data: { status: 'overdue' } });
+              // notify admin
+              try {
+                const { sendEmail } = await import('@/lib/email');
+                const admin = process.env.ADMIN_EMAIL;
+                if (admin) await sendEmail({ to: admin, subject: `Booking ${booking.id} is overdue`, text: `Booking ${booking.id} has failed payments ${failures} times and is now marked overdue.` });
+              } catch (e) {
+                console.warn('notify admin failed', e);
+              }
+            } else {
+              // notify client about failed payment and retry attempts
+              try {
+                const { sendEmail } = await import('@/lib/email');
+                if (booking.clientEmail) await sendEmail({ to: booking.clientEmail, subject: `Payment failed — Booking ${booking.id}`, text: `We attempted to take a payment but it failed. We will retry. Attempt ${failures}/${threshold}. Please update your payment method.` });
+              } catch (e) {
+                console.warn('notify client failed', e);
+              }
             }
           }
         }

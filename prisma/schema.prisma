@@ -30,6 +30,7 @@ model Booking {
   totalPrice         Int
   status             String   @default("active")
   stripeSubscriptionId String? 
+  failureCount       Int      @default(0)
   token              String   @unique
   createdAt          DateTime @default(now())
   payments           Payment[]
